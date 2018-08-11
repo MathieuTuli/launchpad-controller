@@ -20,7 +20,7 @@ class Controller():
 			if key not in settings:
 				print("Incorrect controller settings. Assure {} keys are present.".format(keys))
 				sys.exit(0)
-		
+
 		self.lp = launchpad.Launchpad()
 		self.mode = None
 		self.board = np.zeros((9,9))
@@ -80,7 +80,7 @@ class Controller():
 				self.mode = "Mk1"
 
 		if self.mode is None:
-			print("Could not intialize controller. Assure proper ID is being used.")
+			print("Could not intialize controller. Assure proper ID is being used and that the controller is properly plugged in.")
 			sys.exit(0)
 		self.lp.Reset()
 
@@ -88,18 +88,22 @@ class Controller():
 		print("Controller dead.\n")
 
 	def allOn(self, colour):
-		for i in range(9):
-			for j in range(9):
-				if(i == 8 and j == 0):
-					continue
-				self.turnOn(i,j,colour)
+		for key, value in self.assignments.items():
+			self.turnOn(value[0], value[1], "green_bright")
+		# for i in range(9):
+		# 	for j in range(9):
+		# 		if(i == 8 and j == 0):
+		# 			continue
+		# 		self.turnOn(i,j,colour)
 
 	def allOff(self):
-		for i in range(9):
-			for j in range(9):
-				if(i == 8 and j == 0):
-					continue
-				self.turnOff(i,j)
+		for key, value in self.assignments.items():
+			self.turnOff(value[0], value[1])
+		# for i in range(9):
+		# 	for j in range(9):
+		# 		if(i == 8 and j == 0):
+		# 			continue
+		# 		self.turnOff(i,j)
 
 	def turnOn(self, x, y, colour):
 		if self.validateButton([x,y]):
@@ -111,7 +115,7 @@ class Controller():
 
 	def turnOff(self, x, y):
 		if self.validateButton([x,y]):
-			self.lp.LedCtrlXY(x, y, 0, 0)
+			self.lp.LedCtrlXY(x, y, 3, 0)
 			self.board[x,y] = 0
 		else:
 			print("Incorrect button coordinates; ({}, {})\n".format(x, y))
@@ -171,6 +175,7 @@ class Controller():
 				self.assignments.update({key:value})
 				self.assignment_functions.update({key+'_on':on_fcn})
 				self.assignment_functions.update({key+'_off':off_fcn})
+				self.turnOff(value[0], value[1])
 				print("[{} : {}] added to assignments".format(key,value))
 		else:
 			print('Button or Key already assigned. Use \'updateAssignment(...)\' if you wish to change any part of the assignment.')
